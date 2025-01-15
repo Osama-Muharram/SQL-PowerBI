@@ -2,7 +2,6 @@ USE NorthWinds;
 
 -- CREATE SCHEMA Calculation;
 
- 
 -- Explore Data Analysis
 
 -- Categories Table
