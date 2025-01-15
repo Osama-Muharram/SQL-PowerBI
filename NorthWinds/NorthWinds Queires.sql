@@ -3,7 +3,7 @@ USE NorthWinds;
 -- CREATE SCHEMA Calculation;
 
  
--- Explore And Understanding Tables
+-- Explore Data Analysis
 
 -- Categories Table
 SELECT * FROM Categories;
