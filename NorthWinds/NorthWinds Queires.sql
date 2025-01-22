@@ -67,59 +67,6 @@ FROM
 JOIN OrderDetails ON OrderDetails.OrderID = Counts.OrderID
 JOIN Orders ON OrderDetails.OrderID = Orders.OrderID;
 
--- Financial And Quantitative KPIs For Each Year
-WITH Amts AS (
-	SELECT 
-		SUM(Quantity) AS TotalQnts,
-		COUNT(OrderID) AS TotalItems,
-		COUNT(DISTINCT OrderID) AS TotalOrders,
-		SUM(LineFreight) AS TotalFreight,
-		SUM(QntPrice - DiscountAmt) AS Subtotal,
-		SUM(QntPrice + LineFreight - DiscountAmt) AS TotalDue,
-		FinancialYear
-	FROM KPIs
-	GROUP BY FinancialYear
-),
-StartValue AS (
-	SELECT  
-		SUM(QntPrice + LineFreight - DiscountAmt) AS FirstValue
-	FROM KPIs
-	WHERE FinancialYear = 
-		(
-		SELECT MIN(FinancialYear) FROM KPIs
-		)
-),
-EndValue AS (
-	SELECT  
-		SUM(QntPrice + LineFreight - DiscountAmt) AS LastValue
-	FROM KPIs
-	WHERE FinancialYear = 
-		(
-		SELECT MAX(FinancialYear) FROM KPIs
-		)
-),
-YearCounts AS (
-	SELECT 
-		COUNT(DISTINCT FinancialYear) AS N
-	FROM KPIs
-)
-SELECT 
-	FORMAT(TotalQnts, '#,##0.##') AS TotalQnts,
-	FORMAT(TotalItems, '#,##0.##') AS TotalItems,
-	FORMAT(TotalOrders, '#,##0.##') AS TotalOrders,
-	FORMAT(TotalFreight, '#,##0.##') AS TotalFreight,
-	FORMAT(Subtotal, '#,##0.##') AS Subtotal,
-	FORMAT(TotalDue, '#,##0.##') AS TotalDue,
-	FORMAT(
-		(TotalDue- LAG(TotalDue) OVER(ORDER BY FinancialYear)) / 
-		LAG(TotalDue) OVER(ORDER BY FinancialYear) * 100,
-		'#,##0.00') AS "GrowthRate%",
-	FORMAT((POWER (LastValue / FirstValue, 1.0 / N) - 1 ) * 100,
-	'#,##0.##') AS "CAGR%"
-
-FROM Amts, StartValue, EndValue, YearCounts
-ORDER BY FinancialYear;
-
 -- Financial And Quantitative KPIs For All Years
 WITH Amts AS (
 	SELECT 
@@ -149,7 +96,7 @@ EndValue AS (
 		SELECT MAX(FinancialYear) FROM KPIs
 		)
 ),
-YearCounts AS (
+YearsCount AS (
 	SELECT 
 		COUNT(DISTINCT FinancialYear) AS N
 	FROM KPIs
@@ -164,7 +111,35 @@ SELECT
 
 	FORMAT((POWER (LastValue / FirstValue, 1.0 / N) - 1 ) * 100, '#,##0.##') AS "CAGR%"
 
-FROM Amts, StartValue, EndValue, YearCounts
+FROM Amts, StartValue, EndValue, YearsCount;
+
+-- Financial And Quantitative KPIs Over Years
+WITH Amts AS (
+	SELECT 
+		SUM(Quantity) AS TotalQnts,
+		COUNT(OrderID) AS TotalItems,
+		COUNT(DISTINCT OrderID) AS TotalOrders,
+		SUM(LineFreight) AS TotalFreight,
+		SUM(QntPrice - DiscountAmt) AS Subtotal,
+		SUM(QntPrice + LineFreight - DiscountAmt) AS TotalDue,
+		FinancialYear
+	FROM KPIs
+	GROUP BY FinancialYear
+)
+SELECT 
+	FinancialYear,
+	FORMAT(TotalQnts, '#,##0.##') AS TotalQnts,
+	FORMAT(TotalItems, '#,##0.##') AS TotalItems,
+	FORMAT(TotalOrders, '#,##0.##') AS TotalOrders,
+	FORMAT(TotalFreight, '#,##0.##') AS TotalFreight,
+	FORMAT(Subtotal, '#,##0.##') AS Subtotal,
+	FORMAT(TotalDue, '#,##0.##') AS TotalDue,
+	FORMAT(
+		(TotalDue - LAG(TotalDue) OVER(ORDER BY FinancialYear)) / 
+		LAG(TotalDue) OVER(ORDER BY FinancialYear) * 100,
+		'#,##0.00') AS "GrowthRate%"
+FROM Amts
+ORDER BY FinancialYear;
 
 -- Top Products By Quantity
 SELECT 
