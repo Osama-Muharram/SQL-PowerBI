@@ -10,10 +10,15 @@ SELECT DISTINCT ToCurrency FROM Data.CurrencyExchange;
 -- Data.Customer Table
 SELECT * FROM Data.Customer;
 
+SELECT * FROM Data.Customer
+WHERE Company IS NULL;
+
 SELECT DISTINCT CountryFull FROM Data.Customer ORDER BY CountryFull ASC;
 
 SELECT DISTINCT Continent, CountryFull, StateFull, City
 FROM Data.Customer ORDER BY CountryFull ASC;
+
+SELECT COUNT(CustomerKey) CustomerCounts FROM Data.Customer;
 
 -- Data.Date Table
 SELECT * FROM Data.Date;
@@ -62,6 +67,9 @@ SELECT DISTINCT Subcategory FROM Data.Product;
 
 -- Data.Store Table
 SELECT * FROM Data.Store;
+
+SELECT * FROM Data.Store
+WHERE [Close Date] = '2019-11-03'
 
 -- Create A View 
 -- CREATE VIEW KPIs AS 
@@ -152,4 +160,16 @@ SELECT
 		'#,##0.0') AS "GrowthRate%"
 FROM OverTime
 ORDER BY FinancialYear;
+-------------------
+
+
+SELECT SUM(CustomerNo) CustomerNo
+FROM
+	(
+	SELECT COUNT(DISTINCT CustomerKey) CustomerNo
+	FROM Data.Orders
+	WHERE YEAR([Order Date]) BETWEEN 2011 AND 2019 
+	GROUP BY StoreKey
+	) R
+
 
