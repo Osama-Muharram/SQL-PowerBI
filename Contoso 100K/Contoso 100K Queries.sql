@@ -52,6 +52,17 @@ GROUP BY "Line Number";
 -- Data.Orders Table
 SELECT * FROM Data.Orders;
 
+SELECT StoreKey, COUNT(StoreKey) 
+FROM Data.Orders
+WHERE CustomerKey = 1214274 
+GROUP BY StoreKey;
+
+SELECT 
+	COUNT(DISTINCT CustomerKey) CustomerNo
+FROM Data.Orders
+WHERE YEAR([Order Date]) BETWEEN 2011 AND 2019 
+GROUP BY StoreKey;
+
 -- Data.Product Table
 SELECT * FROM Data.Product;
 
@@ -162,14 +173,5 @@ FROM OverTime
 ORDER BY FinancialYear;
 -------------------
 
-
-SELECT SUM(CustomerNo) CustomerNo
-FROM
-	(
-	SELECT COUNT(DISTINCT CustomerKey) CustomerNo
-	FROM Data.Orders
-	WHERE YEAR([Order Date]) BETWEEN 2011 AND 2019 
-	GROUP BY StoreKey
-	) R
 
 
