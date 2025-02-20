@@ -10,6 +10,8 @@ SELECT DISTINCT ToCurrency FROM Data.CurrencyExchange;
 -- Data.Customer Table
 SELECT * FROM Data.Customer;
 
+SELECT DISTINCT Continent FROM Data.Customer;
+
 SELECT * FROM Data.Customer
 WHERE Company IS NULL;
 
@@ -75,6 +77,7 @@ SELECT DISTINCT Category FROM Data.Product;
 
 SELECT DISTINCT Subcategory FROM Data.Product;
 
+SELECT DISTINCT Color FROM Data.Product;
 
 -- Data.Store Table
 SELECT * FROM Data.Store;
